@@ -1,1 +1,6 @@
-/data
+data/
+.vscode/
+build_debug/
+build_release/
+
+CMakeLists_prod.txt
