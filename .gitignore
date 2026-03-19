@@ -1,0 +1,12 @@
+/.vs
+/IpFilter
+/x64
+/tests/Tests
+
+IpFilter*.*
+*.txt
+
+!*.hpp
+!*.h
+!*.cpp
+!CMakeLists.txt
