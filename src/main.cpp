@@ -12,17 +12,13 @@ int main() {
     ip_pool.reserve(1000);
 
     std::string line;
-    std::size_t valid_lines = 0;
-    std::size_t invalid_lines = 0;
 
     while (std::getline(std::cin, line)) {
         ip_filter::ip_address ip;
         if (ip_filter::parse_ip_from_line(line, ip)) {
             ip_pool.push_back(ip);
-            ++valid_lines;
         }
         else {
-            ++invalid_lines;
             if (!line.empty()) {
                 std::cerr << "Warning: Skipping invalid line: " << line << std::endl;
             }
