@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(ip_comparison_test) {
     BOOST_CHECK(ip_filter::compare_ips_descending(ip3, ip1));
 }
 
-// Печат
+// Печать
 BOOST_AUTO_TEST_CASE(print_ip_test) {
     ip_filter::ip_address ip{ 192, 168, 1, 1 };
     std::ostringstream oss;
@@ -50,8 +50,37 @@ BOOST_AUTO_TEST_CASE(print_ip_test) {
     BOOST_CHECK_EQUAL(oss.str(), "192.168.1.1\n");
 }
 
-// Фильтрация
-BOOST_AUTO_TEST_CASE(filter_test) {
+// Фильтрация с make_ip_filter
+BOOST_AUTO_TEST_CASE(make_ip_filter_test) {
+    std::vector<ip_filter::ip_address> ips = {
+        {1, 2, 3, 4},
+        {46, 70, 10, 20},
+        {46, 71, 46, 30},
+        {10, 0, 0, 46},
+        {46, 70, 15, 25},
+        {46, 70, 10, 21}
+    };
+
+    // 1 аргумент
+    auto filter1 = ip_filter::filter(ips, ip_filter::make_ip_filter(46));
+    BOOST_CHECK_EQUAL(filter1.size(), 4); // 46.70.10.20, 46.71.46.30, 46.70.15.25, 46.70.10.21
+
+    // 2 аргумента
+    auto filter2 = ip_filter::filter(ips, ip_filter::make_ip_filter(46, 70));
+    BOOST_CHECK_EQUAL(filter2.size(), 3); // 46.70.10.20, 46.70.15.25, 46.70.10.21
+
+    // 3 аргумента
+    auto filter3 = ip_filter::filter(ips, ip_filter::make_ip_filter(46, 70, 10));
+    BOOST_CHECK_EQUAL(filter3.size(), 2); // 46.70.10.20, 46.70.10.21
+
+    // 4 аргумента
+    auto filter4 = ip_filter::filter(ips, ip_filter::make_ip_filter(46, 70, 10, 20));
+    BOOST_CHECK_EQUAL(filter4.size(), 1); // 46.70.10.20
+    BOOST_CHECK(filter4[0] == (ip_filter::ip_address{ 46, 70, 10, 20 }));
+}
+
+// Любой байт
+BOOST_AUTO_TEST_CASE(filter_any_byte_test) {
     std::vector<ip_filter::ip_address> ips = {
         {1, 2, 3, 4},
         {46, 70, 10, 20},
@@ -59,15 +88,8 @@ BOOST_AUTO_TEST_CASE(filter_test) {
         {10, 0, 0, 46}
     };
 
-    auto filter1 = ip_filter::filter(ips, ip_filter::filter_first_byte_eq(46));
-    BOOST_CHECK_EQUAL(filter1.size(), 2);
-
-    auto filter2 = ip_filter::filter(ips, ip_filter::filter_first_two_bytes_eq(46, 70));
-    BOOST_CHECK_EQUAL(filter2.size(), 1);
-    BOOST_CHECK(filter2[0] == (ip_filter::ip_address{ 46, 70, 10, 20 }));
-
-    auto filter3 = ip_filter::filter(ips, ip_filter::filter_any_byte_eq(46));
-    BOOST_CHECK_EQUAL(filter3.size(), 3);
+    auto filter = ip_filter::filter(ips, ip_filter::filter_any_byte_eq(46));
+    BOOST_CHECK_EQUAL(filter.size(), 3); // 46.70.10.20, 46.71.46.30, 10.0.0.46
 }
 
 BOOST_AUTO_TEST_CASE(integration_test) {
@@ -92,7 +114,7 @@ BOOST_AUTO_TEST_CASE(integration_test) {
     std::sort(pool.begin(), pool.end(), ip_filter::compare_ips_descending);
     BOOST_CHECK(pool[0] == (ip_filter::ip_address{ 46, 71, 46, 30 }));
 
-    auto filtered = ip_filter::filter(pool, ip_filter::filter_first_byte_eq(46));
+    auto filtered = ip_filter::filter(pool, ip_filter::make_ip_filter(46));
     BOOST_CHECK_EQUAL(filtered.size(), 2);
 }
 

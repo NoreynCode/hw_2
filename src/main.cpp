@@ -27,8 +27,8 @@ int main() {
 
     std::sort(ip_pool.begin(), ip_pool.end(), ip_filter::compare_ips_descending);
 
-    auto filter1 = ip_filter::filter(ip_pool, ip_filter::filter_first_byte_eq(1));
-    auto filter2 = ip_filter::filter(ip_pool, ip_filter::filter_first_two_bytes_eq(46, 70));
+    auto filter1 = ip_filter::filter(ip_pool, ip_filter::make_ip_filter(1));
+    auto filter2 = ip_filter::filter(ip_pool, ip_filter::make_ip_filter(46, 70));
     auto filter3 = ip_filter::filter(ip_pool, ip_filter::filter_any_byte_eq(46));
 
     ip_filter::print_ip_collection(ip_pool);
